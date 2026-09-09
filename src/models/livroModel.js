@@ -12,7 +12,14 @@ async function buscarLivroPorId(id) {
     return resultado;
 };
 
+async function criarLivro(titulo, autor, ano) {
+    const [resultado] = await connection.query("INSERT INTO livros (titulo, autor, ano) VALUES (?, ?, ?)", [titulo, autor, ano]);
+
+    return resultado;
+};
+
 module.exports = {
     buscarLivros,
     buscarLivroPorId,
+    criarLivro,
 };
