@@ -67,8 +67,73 @@ async function criarLivroController(req, res) {
     }
 };
 
+async function atualizarLivroController(req, res) {
+    try {
+        const id = req.params.id;
+        const { titulo, autor, ano } = req.body;
+
+        const busca = await livroModel.buscarLivroPorId(id);
+
+        if (busca.length === 0) {
+            res.status(404).send("Livro não encontrado!");
+            return;
+        }
+
+        const livro = busca[0];
+
+        const novoTitulo = titulo ?? livro.titulo;
+        const novoAutor = autor ?? livro.autor;
+        const novoAno = ano ?? livro.ano;
+
+        if (typeof novoTitulo !== "string" ) {
+            res.status(400).send("Titulo inválido!");
+            return;
+        }
+
+        if (typeof novoAutor !== "string") {
+            res.status(400).send("autor inválido!");
+            return;
+        }
+
+        if (typeof novoAno !== "number" || ano < 1000) {
+            res.status(400).send("Ano inválido!");
+            return;
+        }
+
+        const resultado = await livroModel.atualizarLivro(id, novoTitulo, novoAutor, novoAno);
+
+        res.status(200).json(resultado);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            erro: "Erro ao atualizar livro!"
+        });
+    }
+};
+
+async function deletarLivroController(req, res) {
+    try {
+        const id = req.params.id;
+        const resultado = await livroModel.deletarLivro(id);
+
+        if (resultado.affectedRows === 0) {
+            res.status(404).send("Livro não encontrado!");
+            return;
+        }
+        
+        res.status(200).send("Livro deletado com sucesso!");
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            erro: "Erro ao deletar livro!"
+        });
+    }
+};
+
 module.exports = {
     buscarLivrosController,
     buscarLivroPorIdController,
     criarLivroController,
+    atualizarLivroController,
+    deletarLivroController,
 };
