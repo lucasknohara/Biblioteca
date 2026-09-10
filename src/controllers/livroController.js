@@ -35,6 +35,7 @@ async function buscarLivroPorIdController(req, res) {
 async function criarLivroController(req, res) {
     try {
         const { titulo, autor, ano } = req.body;
+        const data = new Date();
 
         if (typeof titulo !== "string" || titulo.trim().length <= 0) {
             res.status(400).send("Titulo inválido!");
@@ -46,7 +47,7 @@ async function criarLivroController(req, res) {
             return;
         }
 
-        if (typeof ano !== "number" || ano < 1000) {
+        if (typeof ano !== "number" || ano < 1000 || ano > data.getFullYear() || !Number.isInteger(ano)) {
             res.status(400).send("Ano inválido!");
             return;
         }
@@ -71,6 +72,7 @@ async function atualizarLivroController(req, res) {
     try {
         const id = req.params.id;
         const { titulo, autor, ano } = req.body;
+        const data = new Date();
 
         const busca = await livroModel.buscarLivroPorId(id);
 
@@ -85,17 +87,17 @@ async function atualizarLivroController(req, res) {
         const novoAutor = autor ?? livro.autor;
         const novoAno = ano ?? livro.ano;
 
-        if (typeof novoTitulo !== "string" ) {
+        if (typeof novoTitulo !== "string" || novoTitulo.trim().length <= 0) {
             res.status(400).send("Titulo inválido!");
             return;
         }
 
-        if (typeof novoAutor !== "string") {
+        if (typeof novoAutor !== "string" || novoAutor.trim().length <= 0) {
             res.status(400).send("autor inválido!");
             return;
         }
 
-        if (typeof novoAno !== "number" || ano < 1000) {
+        if (typeof novoAno !== "number" || novoAno < 1000 || novoAno > data.getFullYear() || !Number.isInteger(novoAno)) {
             res.status(400).send("Ano inválido!");
             return;
         }
