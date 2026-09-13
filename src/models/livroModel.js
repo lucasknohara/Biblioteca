@@ -1,13 +1,17 @@
 const connection = require("../config/database.js");
 
 async function buscarLivros() {
-    const [resultado] = await connection.query("SELECT * FROM livros")
+    const [resultado] = await connection.query(
+        "SELECT livros.id, livros.titulo, autores.nome AS autor, livros.ano, livros.disponivel FROM livros JOIN autores ON livros.autor_id = autores.id"
+    );
 
     return resultado;
 };
 
 async function buscarLivroPorId(id) {
-    const [resultado] = await connection.query("SELECT * FROM livros WHERE id = ?", [id]);
+    const [resultado] = await connection.query(
+        "SELECT livros.id, livros.titulo, autores.nome AS autor, livros.ano, livros.disponivel FROM livros JOIN autores ON livros.autor_id = autores.id WHERE livros.id = ?", [id]
+    );
 
     return resultado;
 };
