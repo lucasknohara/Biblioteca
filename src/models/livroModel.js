@@ -17,7 +17,7 @@ async function buscarLivroPorId(id) {
 };
 
 async function criarLivro(titulo, autor, ano) {
-    const [resultado] = await connection.query("INSERT INTO livros (titulo, autor, ano) VALUES (?, ?, ?)", [titulo, autor, ano]);
+    const [resultado] = await connection.query("INSERT INTO livros (titulo, autor_id, ano) VALUES (?, ?, ?)", [titulo, autor, ano]);
 
     return resultado;
 };

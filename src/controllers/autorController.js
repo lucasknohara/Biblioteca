@@ -40,7 +40,27 @@ async function criarAutorController(req, res) {
     }
 };
 
+async function buscarAutorPorIdController(req, res) {
+    try {
+        const id = req.params.id;
+        const resultado = await autorModel.buscarAutorPorId(id);
+
+        if (resultado.length === 0) {
+            res.status(404).send("Autor não encontrado!");
+            return;
+        }
+
+        res.status(200).json(resultado);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Erro ao buscar autor!"
+        });
+    }
+};
+
 module.exports = {
     buscarAutoresController,
     criarAutorController,
+    buscarAutorPorIdController,
 };

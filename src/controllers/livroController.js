@@ -1,4 +1,5 @@
 const livroModel = require("../models/livroModel.js");
+const autorModel = require("../models/autorModel.js");
 
 async function buscarLivrosController(req, res) {
     try {
@@ -49,6 +50,13 @@ async function criarLivroController(req, res) {
 
         if (typeof ano !== "number" || ano < 1000 || ano > data.getFullYear() || !Number.isInteger(ano)) {
             res.status(400).send("Ano inválido!");
+            return;
+        }
+
+        const busca = await autorModel.buscarAutorPorId(autor_id);
+
+        if (busca.length === 0) {
+            res.status(404).send("Autor não encontrado!");
             return;
         }
 

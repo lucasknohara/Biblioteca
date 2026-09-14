@@ -12,7 +12,14 @@ async function criarAutor(nome) {
     return resultado;
 };
 
+async function buscarAutorPorId(id) {
+    const [resultado] = await connection.query("SELECT * FROM autores WHERE autores.id = ?", [id]);
+
+    return resultado;
+};
+
 module.exports = {
     buscarAutores,
     criarAutor,
+    buscarAutorPorId,
 };
