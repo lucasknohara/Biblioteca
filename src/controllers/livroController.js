@@ -95,6 +95,8 @@ async function atualizarLivroController(req, res) {
         const novoAutor = autor_id ?? livro.autor_id;
         const novoAno = ano ?? livro.ano;
 
+        const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
+
         if (typeof novoTitulo !== "string" || novoTitulo.trim().length <= 0) {
             res.status(400).send("Titulo inválido!");
             return;
@@ -109,6 +111,11 @@ async function atualizarLivroController(req, res) {
             res.status(400).send("Ano inválido!");
             return;
         }
+
+        if (verificaAutor.length === 0) {
+            res.status(404).send("Autor não encontrado!");
+            return;
+        };
 
         const resultado = await livroModel.atualizarLivro(id, novoTitulo, novoAutor, novoAno);
 
