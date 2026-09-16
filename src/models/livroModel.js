@@ -22,8 +22,8 @@ async function criarLivro(titulo, autor, ano) {
     return resultado;
 };
 
-async function atualizarLivro(id, titulo, autor, ano) {
-    const [resultado] = await connection.query("UPDATE livros SET titulo = ?, autor = ?, ano = ? WHERE id = ?", [titulo, autor, ano, id]);
+async function atualizarLivro(id, titulo, autor_id, ano) {
+    const [resultado] = await connection.query("UPDATE livros SET titulo = ?, autor_id = ?, ano = ? WHERE id = ?", [titulo, autor_id, ano, id]);
 
     return resultado;
 };

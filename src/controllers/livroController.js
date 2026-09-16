@@ -79,7 +79,7 @@ async function criarLivroController(req, res) {
 async function atualizarLivroController(req, res) {
     try {
         const id = req.params.id;
-        const { titulo, autor, ano } = req.body;
+        const { titulo, autor_id, ano } = req.body;
         const data = new Date();
 
         const busca = await livroModel.buscarLivroPorId(id);
@@ -92,7 +92,7 @@ async function atualizarLivroController(req, res) {
         const livro = busca[0];
 
         const novoTitulo = titulo ?? livro.titulo;
-        const novoAutor = autor ?? livro.autor;
+        const novoAutor = autor_id ?? livro.autor_id;
         const novoAno = ano ?? livro.ano;
 
         if (typeof novoTitulo !== "string" || novoTitulo.trim().length <= 0) {
@@ -100,7 +100,7 @@ async function atualizarLivroController(req, res) {
             return;
         }
 
-        if (typeof novoAutor !== "string" || novoAutor.trim().length <= 0) {
+        if (typeof novoAutor !== "number" || !Number.isInteger(novoAutor) || novoAutor <= 0) {
             res.status(400).send("autor inválido!");
             return;
         }
