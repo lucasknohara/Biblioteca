@@ -1,9 +1,8 @@
-const livroModel = require("../models/livroModel.js");
-const autorModel = require("../models/autorModel.js");
+const livroService = require("../services/livroService.js");
 
 async function buscarLivrosController(req, res) {
     try {
-        const resultado = await livroModel.buscarLivros();
+        const resultado = await livroService.buscaLivrosService();
 
         res.status(200).json(resultado);
     } catch (error) {
@@ -17,11 +16,10 @@ async function buscarLivrosController(req, res) {
 async function buscarLivroPorIdController(req, res) {
     try {
         const id = req.params.id;
-        const resultado = await livroModel.buscarLivroPorId(id);
+        const resultado = await livroService.buscaLivrosPorIdService(id);
 
-        if (resultado.length === 0) {
+        if (resultado === "Livro não encontrado!") {
             res.status(404).send("Livro não encontrado!");
-            return;
         }
 
         res.status(200).json(resultado);
@@ -36,38 +34,17 @@ async function buscarLivroPorIdController(req, res) {
 async function criarLivroController(req, res) {
     try {
         const { titulo, autor_id, ano } = req.body;
-        const data = new Date();
+        const resultado = await livroService.criarlivroService(titulo, autor_id, ano);
 
-        if (typeof titulo !== "string" || titulo.trim().length <= 0) {
-            res.status(400).send("Titulo inválido!");
-            return;
+        if (resultado === "Titulo inválido!" || resultado === "Autor inválido!" || resultado === "Ano inválido!") {
+            res.status(400).send("Informações inválidas!");
         }
 
-        if (typeof autor_id !== "number" || !Number.isInteger(autor_id)) {
-            res.status(400).send("Autor inválido!");
-            return;
-        }
-
-        if (typeof ano !== "number" || ano < 1000 || ano > data.getFullYear() || !Number.isInteger(ano)) {
-            res.status(400).send("Ano inválido!");
-            return;
-        }
-
-        const busca = await autorModel.buscarAutorPorId(autor_id);
-
-        if (busca.length === 0) {
+        if (resultado === "Autor não encontrado!") {
             res.status(404).send("Autor não encontrado!");
-            return;
         }
 
-        const resultado = await livroModel.criarLivro(titulo, autor_id, ano);
-
-        if (resultado.affectedRows === 1) {
-            res.status(201).json(resultado);
-            return;
-        }
-
-        res.status(500).send("Erro na criação!");
+        res.status(201).json(resultado);
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -80,44 +57,15 @@ async function atualizarLivroController(req, res) {
     try {
         const id = req.params.id;
         const { titulo, autor_id, ano } = req.body;
-        const data = new Date();
+        const resultado = await livroService.atualizarLivroService(id, titulo, autor_id, ano);
 
-        const busca = await livroModel.buscarLivroPorId(id);
-
-        if (busca.length === 0) {
+        if (resultado === "Livro não encontrado!") {
             res.status(404).send("Livro não encontrado!");
-            return;
         }
 
-        const livro = busca[0];
-
-        const novoTitulo = titulo ?? livro.titulo;
-        const novoAutor = autor_id ?? livro.autor_id;
-        const novoAno = ano ?? livro.ano;
-
-        const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
-
-        if (typeof novoTitulo !== "string" || novoTitulo.trim().length <= 0) {
-            res.status(400).send("Titulo inválido!");
-            return;
+        if (resultado === "Titulo inválido!" || resultado === "Autor inválido!" || resultado === "Ano inválido!" || resultado === "Autor não encontrado!") {
+            res.status(400).send("Informações inválidas!");
         }
-
-        if (typeof novoAutor !== "number" || !Number.isInteger(novoAutor) || novoAutor <= 0) {
-            res.status(400).send("autor inválido!");
-            return;
-        }
-
-        if (typeof novoAno !== "number" || novoAno < 1000 || novoAno > data.getFullYear() || !Number.isInteger(novoAno)) {
-            res.status(400).send("Ano inválido!");
-            return;
-        }
-
-        if (verificaAutor.length === 0) {
-            res.status(404).send("Autor não encontrado!");
-            return;
-        };
-
-        const resultado = await livroModel.atualizarLivro(id, novoTitulo, novoAutor, novoAno);
 
         res.status(200).json(resultado);
     } catch (error) {
@@ -133,16 +81,39 @@ async function deletarLivroController(req, res) {
         const id = req.params.id;
         const resultado = await livroModel.deletarLivro(id);
 
-        if (resultado.affectedRows === 0) {
+        if (resultado === "Livro não encontrado!") {
             res.status(404).send("Livro não encontrado!");
-            return;
         }
-        
+
         res.status(200).send("Livro deletado com sucesso!");
     } catch (error) {
         console.log(error);
         res.status(500).json({
             erro: "Erro ao deletar livro!"
+        });
+    }
+};
+
+async function emprestarLivroController(req, res) {
+    try {
+        const id = req.params.id;
+        const resultado = await livroService.emprestarLivroService(id);
+
+        if (resultado === "Livro não existe!") {
+            res.status(404).send("Livro não existe!");
+            return;
+        }
+
+        if (resultado === "Livro não disponivel!") {
+            res.status(409).send("Livro não disponivel!");
+            return;
+        }
+
+        res.status(200).json(resultado);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Erro ao adquirir o livro!"
         });
     }
 };

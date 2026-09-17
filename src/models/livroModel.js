@@ -34,10 +34,17 @@ async function deletarLivro(id) {
     return resultado;
 };
 
+async function emprestarLivro(id) {
+    const [resultado] = await connection.query("UPDATE livros SET disponivel = false WHERE id = ?", [id]);
+
+    return resultado;
+};
+
 module.exports = {
     buscarLivros,
     buscarLivroPorId,
     criarLivro,
     atualizarLivro,
     deletarLivro,
+    emprestarLivro,
 };
