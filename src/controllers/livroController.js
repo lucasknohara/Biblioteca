@@ -49,6 +49,7 @@ async function criarLivroController(req, res) {
 
         if (resultado === "Livro não criado!") {
             res.status(500).send("Livro não criado!");
+            return;
         }
 
         res.status(201).json(resultado);

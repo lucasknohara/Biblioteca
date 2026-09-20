@@ -73,11 +73,11 @@ async function atualizarLivroService(id, titulo, autor_id, ano) {
         return "Ano inválido!";
     }
 
+    const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
+
     if (verificaAutor.length === 0) {
         return "Autor não encontrado!";
     };
-
-    const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
 
     const resultado = await livroModel.atualizarLivro(id, novoTitulo, novoAutor, novoAno);
 

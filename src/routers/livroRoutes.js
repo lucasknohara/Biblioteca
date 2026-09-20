@@ -7,6 +7,6 @@ router.get("/livros/:id", buscarLivroPorIdController);
 router.post("/livros", criarLivroController);
 router.put("/livros/:id", atualizarLivroController);
 router.delete("/livros/:id", deletarLivroController);
-router.put("/livros/:id", emprestarLivroController);
+router.put("/livros/:id/emprestar", emprestarLivroController);
 
 module.exports = router;
