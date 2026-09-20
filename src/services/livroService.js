@@ -43,6 +43,8 @@ async function criarlivroService(titulo, autor_id, ano) {
     if (resultado.affectedRows === 1) {
         return resultado;
     }
+
+    return "Livro não criado!";
 };
 
 async function atualizarLivroService(id, titulo, autor_id, ano) {

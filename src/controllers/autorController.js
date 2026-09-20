@@ -1,8 +1,9 @@
 const autorModel = require("../models/autorModel.js");
+const autorService = require("../services/autorService.js");
 
 async function buscarAutoresController(req, res) {
     try {
-        const resultado = await autorModel.buscarAutores();
+        const resultado = await autorService.buscarAutoresService();
 
 
         res.status(200).json(resultado);
@@ -18,20 +19,19 @@ async function buscarAutoresController(req, res) {
 async function criarAutorController(req, res) {
     try {
         const { nome } = req.body;
+        const resultado = await autorService.criarAutorService(nome);
 
-        if (typeof nome !== "string" || nome.trim().length <= 0) {
+        if (resultado === "Nome inválido!") {
             res.status(400).send("Nome inválido!");
             return;
         }
 
-        const resultado = await autorModel.criarAutor(nome);
-
-        if (resultado.affectedRows === 1) {
-            res.status(201).json(resultado);
+        if (resultado === "Autor não criado!") {
+            res.status(500).send("Autor não criado!");
             return;
         }
 
-        res.status(500).send("Erro na criação!");
+        res.status(201).send(resultado);
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -43,12 +43,7 @@ async function criarAutorController(req, res) {
 async function buscarAutorPorIdController(req, res) {
     try {
         const id = req.params.id;
-        const resultado = await autorModel.buscarAutorPorId(id);
-
-        if (resultado.length === 0) {
-            res.status(404).send("Autor não encontrado!");
-            return;
-        }
+        const resultado = await autorService.buscaAutorPorIdService(id);
 
         res.status(200).json(resultado);
     } catch (error) {
