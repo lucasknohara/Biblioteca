@@ -20,6 +20,7 @@ async function buscarLivroPorIdController(req, res) {
 
         if (resultado === "Livro não encontrado!") {
             res.status(404).send("Livro não encontrado!");
+            return;
         }
 
         res.status(200).json(resultado);
@@ -38,10 +39,12 @@ async function criarLivroController(req, res) {
 
         if (resultado === "Titulo inválido!" || resultado === "Autor inválido!" || resultado === "Ano inválido!") {
             res.status(400).send("Informações inválidas!");
+            return;
         }
 
         if (resultado === "Autor não encontrado!") {
             res.status(404).send("Autor não encontrado!");
+            return;
         }
 
         res.status(201).json(resultado);
@@ -61,10 +64,12 @@ async function atualizarLivroController(req, res) {
 
         if (resultado === "Livro não encontrado!") {
             res.status(404).send("Livro não encontrado!");
+            return;
         }
 
         if (resultado === "Titulo inválido!" || resultado === "Autor inválido!" || resultado === "Ano inválido!" || resultado === "Autor não encontrado!") {
             res.status(400).send("Informações inválidas!");
+            return;
         }
 
         res.status(200).json(resultado);
@@ -79,10 +84,11 @@ async function atualizarLivroController(req, res) {
 async function deletarLivroController(req, res) {
     try {
         const id = req.params.id;
-        const resultado = await livroModel.deletarLivro(id);
+        const resultado = await livroService.deletarLivroService(id);
 
         if (resultado === "Livro não encontrado!") {
             res.status(404).send("Livro não encontrado!");
+            return;
         }
 
         res.status(200).send("Livro deletado com sucesso!");
@@ -124,4 +130,5 @@ module.exports = {
     criarLivroController,
     atualizarLivroController,
     deletarLivroController,
+    emprestarLivroController,
 };

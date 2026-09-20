@@ -45,7 +45,7 @@ async function criarlivroService(titulo, autor_id, ano) {
     }
 };
 
-async function atualizarLivroService(titulo, autor_id, ano) {
+async function atualizarLivroService(id, titulo, autor_id, ano) {
     const data = new Date();
     const busca = await livroModel.buscarLivroPorId(id);
 
@@ -58,8 +58,6 @@ async function atualizarLivroService(titulo, autor_id, ano) {
     const novoTitulo = titulo ?? livro.titulo;
     const novoAutor = autor_id ?? livro.autor_id;
     const novoAno = ano ?? livro.ano;
-
-    const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
 
     if (typeof novoTitulo !== "string" || novoTitulo.trim().length <= 0) {
         return "Titulo inválido!";
@@ -77,7 +75,9 @@ async function atualizarLivroService(titulo, autor_id, ano) {
         return "Autor não encontrado!";
     };
 
-    const resultado = await livroModel.atualizarLivro(titulo, autor_id, ano);
+    const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
+
+    const resultado = await livroModel.atualizarLivro(id, novoTitulo, novoAutor, novoAno);
 
     return resultado;
 };

@@ -10,7 +10,7 @@ async function buscarLivros() {
 
 async function buscarLivroPorId(id) {
     const [resultado] = await connection.query(
-        "SELECT livros.id, livros.titulo, autores.nome AS autor, livros.ano, livros.disponivel FROM livros JOIN autores ON livros.autor_id = autores.id WHERE livros.id = ?", [id]
+        "SELECT livros.id, livros.titulo, autores.nome AS autor, livros.ano, livros.autor_id, livros.disponivel FROM livros JOIN autores ON livros.autor_id = autores.id WHERE livros.id = ?", [id]
     );
 
     return resultado;
