@@ -5,13 +5,12 @@ async function buscarAutoresController(req, res) {
     try {
         const resultado = await autorService.buscarAutoresService();
 
-
         res.status(200).json(resultado);
     } catch (error) {
         console.log(error);
 
-        res.status(500).json({
-            error: "Erro ao buscar autores!"
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -21,21 +20,11 @@ async function criarAutorController(req, res) {
         const { nome } = req.body;
         const resultado = await autorService.criarAutorService(nome);
 
-        if (resultado === "Nome inválido!") {
-            res.status(400).send("Nome inválido!");
-            return;
-        }
-
-        if (resultado === "Autor não criado!") {
-            res.status(500).send("Autor não criado!");
-            return;
-        }
-
         res.status(201).send(resultado);
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            error: "Erro na criação!"
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -48,8 +37,8 @@ async function buscarAutorPorIdController(req, res) {
         res.status(200).json(resultado);
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            error: "Erro ao buscar autor!"
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };

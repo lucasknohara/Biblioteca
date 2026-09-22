@@ -1,4 +1,5 @@
 const autorModel = require("../models/autorModel.js");
+const AppError = require("../errors/AppError.js");
 
 async function buscarAutoresService() {
     const resultado = await autorModel.buscarAutores();
@@ -8,22 +9,22 @@ async function buscarAutoresService() {
 
 async function criarAutorService(nome) {
     if (typeof nome !== "string" || nome.trim().length === 0) {
-        return "Nome inválido!";
-    };
+        throw new AppError("Nome inválido!", 400);
+    }
 
     const resultado = await autorModel.criarAutor(nome);
 
     if (resultado.affectedRows === 1) {
         return resultado;
-    };
+    }
 
-    return "Autor não criado!";
+    throw new AppError("Autor não criado!", 500);
 };
 async function buscaAutorPorIdService(id) {
     const resultado = await autorModel.buscarAutorPorId(id);
 
     if (resultado.length === 0) {
-        return "Autor não encontrado!";
+        throw new AppError("Autor não encontrado!", 404)
     }
 
     return resultado;
