@@ -7,8 +7,7 @@ async function buscarAutoresController(req, res) {
 
         res.status(200).json(resultado);
     } catch (error) {
-        console.log(error);
-
+        console.log(error.message);
         res.status(error.status ?? 500).json({
             error: error.message
         });
@@ -22,7 +21,7 @@ async function criarAutorController(req, res) {
 
         res.status(201).send(resultado);
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
         res.status(error.status ?? 500).json({
             error: error.message
         });
@@ -36,7 +35,7 @@ async function buscarAutorPorIdController(req, res) {
 
         res.status(200).json(resultado);
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
         res.status(error.status ?? 500).json({
             error: error.message
         });
