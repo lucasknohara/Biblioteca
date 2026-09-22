@@ -1,5 +1,6 @@
 const livroModel = require("../models/livroModel.js");
 const autorModel = require("../models/autorModel.js");
+const AppError = require("../errors/AppError.js");
 
 async function buscaLivrosService() {
     const resultado = await livroModel.buscarLivros();
@@ -11,7 +12,7 @@ async function buscaLivrosPorIdService(id) {
     const resultado = await livroModel.buscarLivroPorId(id);
 
     if (resultado.length === 0) {
-        return "Livro não encontrado!";
+        throw new AppError("Livro não encontrado!", 404);
     }
 
     return resultado;
@@ -21,21 +22,21 @@ async function criarlivroService(titulo, autor_id, ano) {
     const data = new Date();
 
     if (typeof titulo !== "string" || titulo.trim().length <= 0) {
-        return "Titulo inválido!";
+        throw new AppError("Titulo inválido!", 400);
     }
 
     if (typeof autor_id !== "number" || !Number.isInteger(autor_id)) {
-        return "Autor inválido!";
+        throw new AppError("Autor inválido!", 400);
     }
 
     if (typeof ano !== "number" || ano < 1000 || ano > data.getFullYear() || !Number.isInteger(ano)) {
-        return "Ano inválido!";
+        throw new AppError("Ano inválido!", 400);
     }
 
     const busca = await autorModel.buscarAutorPorId(autor_id);
 
     if (busca.length === 0) {
-        return "Autor não encontrado!";
+        throw new AppError("Autor não encontrado!", 404);
     }
 
     const resultado = await livroModel.criarLivro(titulo, autor_id, ano)
@@ -44,7 +45,7 @@ async function criarlivroService(titulo, autor_id, ano) {
         return resultado;
     }
 
-    return "Livro não criado!";
+    throw new AppError("Livro não criado!", 500);
 };
 
 async function atualizarLivroService(id, titulo, autor_id, ano) {
@@ -52,7 +53,7 @@ async function atualizarLivroService(id, titulo, autor_id, ano) {
     const busca = await livroModel.buscarLivroPorId(id);
 
     if (busca.length === 0) {
-        return "Livro não encontrado!"
+        throw new AppError("Livro não encontrado!", 404);
     }
 
     const livro = busca[0];
@@ -62,33 +63,37 @@ async function atualizarLivroService(id, titulo, autor_id, ano) {
     const novoAno = ano ?? livro.ano;
 
     if (typeof novoTitulo !== "string" || novoTitulo.trim().length <= 0) {
-        return "Titulo inválido!";
+        throw new AppError("Titulo inválido!", 400);
     }
 
     if (typeof novoAutor !== "number" || !Number.isInteger(novoAutor) || novoAutor <= 0) {
-        return "Autor inválido!";
+        throw new AppError("Autor inválido!", 400);
     }
 
     if (typeof novoAno !== "number" || novoAno < 1000 || novoAno > data.getFullYear() || !Number.isInteger(novoAno)) {
-        return "Ano inválido!";
+        throw new AppError("Ano inválido", 400);
     }
 
     const verificaAutor = await autorModel.buscarAutorPorId(novoAutor);
 
     if (verificaAutor.length === 0) {
-        return "Autor não encontrado!";
+        throw new AppError("Autor não encontrado!", 404);
     };
 
     const resultado = await livroModel.atualizarLivro(id, novoTitulo, novoAutor, novoAno);
 
-    return resultado;
+    if (resultado.affectedRows === 1) {
+        return resultado;
+    }
+
+    throw new AppError("Livro não atualizado!", 500);
 };
 
 async function deletarLivroService(id) {
     const resultado = await livroModel.deletarLivro(id);
 
     if (resultado.affectedRows === 0) {
-        return "Livro não encontrado!";
+        throw new AppError("Livro não encontrado!", 404);
     }
 
     return resultado;
@@ -98,13 +103,13 @@ async function emprestarLivroService(id) {
     let busca = await livroModel.buscarLivroPorId(id);
 
     if (busca.length === 0) {
-        return "Livro não existe!";
+        throw new AppError("Livro não encontrado!", 404);
     }
 
     const disponivel = busca[0].disponivel;
 
     if (disponivel === false) {
-        return "Livro não disponivel!";
+        throw new AppError("Livro indisponivel!", 409)
     }
 
     const resultado = await livroModel.emprestarLivro(id);

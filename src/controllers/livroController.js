@@ -6,9 +6,9 @@ async function buscarLivrosController(req, res) {
 
         res.status(200).json(resultado);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            erro: "Erro ao buscar livros!"
+        console.log(error.message);
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -18,16 +18,11 @@ async function buscarLivroPorIdController(req, res) {
         const id = req.params.id;
         const resultado = await livroService.buscaLivrosPorIdService(id);
 
-        if (resultado === "Livro não encontrado!") {
-            res.status(404).send("Livro não encontrado!");
-            return;
-        }
-
         res.status(200).json(resultado);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            erro: "Erro ao buscar livro!"
+        console.log(error.message);
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -37,26 +32,11 @@ async function criarLivroController(req, res) {
         const { titulo, autor_id, ano } = req.body;
         const resultado = await livroService.criarlivroService(titulo, autor_id, ano);
 
-        if (resultado === "Titulo inválido!" || resultado === "Autor inválido!" || resultado === "Ano inválido!") {
-            res.status(400).send("Informações inválidas!");
-            return;
-        }
-
-        if (resultado === "Autor não encontrado!") {
-            res.status(404).send("Autor não encontrado!");
-            return;
-        }
-
-        if (resultado === "Livro não criado!") {
-            res.status(500).send("Livro não criado!");
-            return;
-        }
-
         res.status(201).json(resultado);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            erro: "Erro ao criar Livro!"
+        console.log(error.message);
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -67,21 +47,11 @@ async function atualizarLivroController(req, res) {
         const { titulo, autor_id, ano } = req.body;
         const resultado = await livroService.atualizarLivroService(id, titulo, autor_id, ano);
 
-        if (resultado === "Livro não encontrado!") {
-            res.status(404).send("Livro não encontrado!");
-            return;
-        }
-
-        if (resultado === "Titulo inválido!" || resultado === "Autor inválido!" || resultado === "Ano inválido!" || resultado === "Autor não encontrado!") {
-            res.status(400).send("Informações inválidas!");
-            return;
-        }
-
         res.status(200).json(resultado);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            erro: "Erro ao atualizar livro!"
+        console.log(error.message);
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -89,18 +59,13 @@ async function atualizarLivroController(req, res) {
 async function deletarLivroController(req, res) {
     try {
         const id = req.params.id;
-        const resultado = await livroService.deletarLivroService(id);
-
-        if (resultado === "Livro não encontrado!") {
-            res.status(404).send("Livro não encontrado!");
-            return;
-        }
+        await livroService.deletarLivroService(id);
 
         res.status(200).send("Livro deletado com sucesso!");
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            erro: "Erro ao deletar livro!"
+        console.log(error.message);
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
@@ -110,21 +75,11 @@ async function emprestarLivroController(req, res) {
         const id = req.params.id;
         const resultado = await livroService.emprestarLivroService(id);
 
-        if (resultado === "Livro não existe!") {
-            res.status(404).send("Livro não existe!");
-            return;
-        }
-
-        if (resultado === "Livro não disponivel!") {
-            res.status(409).send("Livro não disponivel!");
-            return;
-        }
-
         res.status(200).json(resultado);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            error: "Erro ao adquirir o livro!"
+        console.log(error.message);
+        res.status(error.status ?? 500).json({
+            error: error.message
         });
     }
 };
