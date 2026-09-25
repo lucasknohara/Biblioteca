@@ -4,10 +4,10 @@ const { buscarLivrosController, buscarLivroPorIdController, criarLivroController
 const validarId = require("../middleware/validarId.js");
 
 router.get("/livros", buscarLivrosController);
-router.get("/livros/:id", buscarLivroPorIdController);
+router.get("/livros/:id", validarId, buscarLivroPorIdController);
 router.post("/livros", criarLivroController);
-router.put("/livros/:id", atualizarLivroController);
-router.delete("/livros/:id", deletarLivroController);
-router.put("/livros/:id/emprestar", emprestarLivroController);
+router.put("/livros/:id", validarId, atualizarLivroController);
+router.delete("/livros/:id", validarId, deletarLivroController);
+router.put("/livros/:id/emprestar", validarId, emprestarLivroController);
 
 module.exports = router;
