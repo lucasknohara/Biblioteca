@@ -7,7 +7,7 @@ async function buscarLivrosController(req, res) {
 };
 
 async function buscarLivroPorIdController(req, res) {
-    const id = req.params.id;
+    const id = req.idValidado;
     const resultado = await livroService.buscaLivrosPorIdService(id);
 
     res.status(200).json(resultado);
@@ -21,7 +21,7 @@ async function criarLivroController(req, res) {
 };
 
 async function atualizarLivroController(req, res) {
-    const id = req.params.id;
+    const id = req.idValidado;
     const { titulo, autor_id, ano } = req.body;
     const resultado = await livroService.atualizarLivroService(id, titulo, autor_id, ano);
 
@@ -29,14 +29,14 @@ async function atualizarLivroController(req, res) {
 };
 
 async function deletarLivroController(req, res) {
-    const id = req.params.id;
+    const id = req.idValidado;
     await livroService.deletarLivroService(id);
 
     res.status(200).send("Livro deletado com sucesso!");
 };
 
 async function emprestarLivroController(req, res) {
-    const id = req.params.id;
+    const id = req.idValidado;
     const resultado = await livroService.emprestarLivroService(id);
 
     res.status(200).json(resultado);

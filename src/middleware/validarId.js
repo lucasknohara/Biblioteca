@@ -7,6 +7,8 @@ function validarId(req, res, next) {
         throw new AppError("Id inválido!", 400);
     }
 
+    req.idValidado = id;
+
     next();
 }
 

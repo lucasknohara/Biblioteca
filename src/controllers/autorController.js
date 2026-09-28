@@ -14,7 +14,7 @@ async function criarAutorController(req, res) {
 };
 
 async function buscarAutorPorIdController(req, res) {
-    const id = req.params.id;
+    const id = req.validado;
     const resultado = await autorService.buscaAutorPorIdService(id);
 
     res.status(200).json(resultado);
