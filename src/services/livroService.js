@@ -3,10 +3,15 @@ const autorModel = require("../models/autorModel.js");
 const AppError = require("../errors/AppError.js");
 
 async function buscaLivrosService(ano, autor_id) {
-    console.log(`ano: ${ano}`);
-    console.log(`autor_id: ${autor_id}`);
+    if (ano !== undefined && !Number.isInteger(ano)) {
+        throw new AppError("Ano inválido!", 400);
+    }
 
-    const resultado = await livroModel.buscarLivros();
+    if (autor_id !== undefined && (autor_id <= 0|| !Number.isInteger(autor_id))) {
+        throw new AppError("Autor inválido!", 400);
+    }
+
+    const resultado = await livroModel.buscarLivros(ano, autor_id);
 
     return resultado;
 };

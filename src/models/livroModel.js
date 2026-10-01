@@ -2,16 +2,16 @@ const connection = require("../config/database.js");
 
 async function buscarLivros(ano, autor_id) {
     let sql = "SELECT * FROM livros";
-    let valores = [];
+    const valores = [];
 
     if (ano !== undefined && autor_id !== undefined) {
         sql += " WHERE ano = ? AND autor_id = ?";
         valores.push(ano);
         valores.push(autor_id);
-    }else if (ano !== undefined) {
+    } else if (ano !== undefined) {
         sql += " WHERE ano = ?";
         valores.push(ano);
-    }else if (autor_id !== undefined) {
+    } else if (autor_id !== undefined) {
         sql += " WHERE autor_id = ?";
         valores.push(autor_id);
     }
