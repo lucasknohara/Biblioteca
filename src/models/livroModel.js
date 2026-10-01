@@ -1,9 +1,22 @@
 const connection = require("../config/database.js");
 
-async function buscarLivros() {
-    const [resultado] = await connection.query(
-        "SELECT livros.id, livros.titulo, autores.nome AS autor, livros.ano, livros.disponivel FROM livros JOIN autores ON livros.autor_id = autores.id"
-    );
+async function buscarLivros(ano, autor_id) {
+    let sql = "SELECT * FROM livros";
+    let valores = [];
+
+    if (ano !== undefined && autor_id !== undefined) {
+        sql += " WHERE ano = ? AND autor_id = ?";
+        valores.push(ano);
+        valores.push(autor_id);
+    }else if (ano !== undefined) {
+        sql += " WHERE ano = ?";
+        valores.push(ano);
+    }else if (autor_id !== undefined) {
+        sql += " WHERE autor_id = ?";
+        valores.push(autor_id);
+    }
+
+    const [resultado] = await connection.query(sql, valores);
 
     return resultado;
 };

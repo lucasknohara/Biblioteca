@@ -2,7 +2,10 @@ const livroModel = require("../models/livroModel.js");
 const autorModel = require("../models/autorModel.js");
 const AppError = require("../errors/AppError.js");
 
-async function buscaLivrosService() {
+async function buscaLivrosService(ano, autor_id) {
+    console.log(`ano: ${ano}`);
+    console.log(`autor_id: ${autor_id}`);
+
     const resultado = await livroModel.buscarLivros();
 
     return resultado;
