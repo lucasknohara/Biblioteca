@@ -1,7 +1,15 @@
 const connection = require("../config/database.js");
 
-async function buscarAutores() {
-    const [resultado] = await connection.query("SELECT * FROM autores");
+async function buscarAutores(nome) {
+    let sql = "SELECT * FROM autores";
+    const valores = [];
+
+    if (nome !== undefined) {
+        sql += " WHERE nome = ?";
+        valores.push(nome);
+    }
+
+    const [resultado] = await connection.query(sql, [valores]);
 
     return resultado;
 };

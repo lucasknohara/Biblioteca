@@ -1,8 +1,12 @@
 const autorModel = require("../models/autorModel.js");
 const AppError = require("../errors/AppError.js");
 
-async function buscarAutoresService() {
-    const resultado = await autorModel.buscarAutores();
+async function buscarAutoresService(nome) {
+    if (nome !== undefined && !String(nome)) {
+        throw new AppError("Nome inválido!", 400);
+    }
+
+    const resultado = await autorModel.buscarAutores(nome);
 
     return resultado;
 };

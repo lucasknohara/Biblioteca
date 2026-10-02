@@ -1,7 +1,11 @@
 const autorService = require("../services/autorService.js");
 
 async function buscarAutoresController(req, res) {
-    const resultado = await autorService.buscarAutoresService();
+    const { nome } = req.query;
+
+    const nomeVerifica = nome !== undefined ? String(nome) : undefined;
+
+    const resultado = await autorService.buscarAutoresService(nome);
 
     res.status(200).json(resultado);
 };
