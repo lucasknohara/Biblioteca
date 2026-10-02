@@ -2,7 +2,7 @@ const livroModel = require("../models/livroModel.js");
 const autorModel = require("../models/autorModel.js");
 const AppError = require("../errors/AppError.js");
 
-async function buscaLivrosService(ano, autor_id) {
+async function buscaLivrosService(ano, autor_id, ordem) {
     if (ano !== undefined && !Number.isInteger(ano)) {
         throw new AppError("Ano inválido!", 400);
     }
@@ -11,7 +11,11 @@ async function buscaLivrosService(ano, autor_id) {
         throw new AppError("Autor inválido!", 400);
     }
 
-    const resultado = await livroModel.buscarLivros(ano, autor_id);
+    if (ordem !== undefined && ordem !== "asc" && ordem !== "desc") {
+        throw new AppError("Ordem inválida", 400);
+    }
+
+    const resultado = await livroModel.buscarLivros(ano, autor_id, ordem);
 
     return resultado;
 };

@@ -1,6 +1,6 @@
 const connection = require("../config/database.js");
 
-async function buscarLivros(ano, autor_id) {
+async function buscarLivros(ano, autor_id, ordem) {
     let sql = "SELECT * FROM livros";
     const valores = [];
 
@@ -14,6 +14,14 @@ async function buscarLivros(ano, autor_id) {
     } else if (autor_id !== undefined) {
         sql += " WHERE autor_id = ?";
         valores.push(autor_id);
+    }
+
+    if (ordem !== undefined) {
+        if (ordem === "asc") {
+            sql += " ORDER BY ano ASC"
+        } else {
+            sql += " ORDER BY ano DESC"
+        }
     }
 
     const [resultado] = await connection.query(sql, valores);
