@@ -1,13 +1,12 @@
 const connection = require("../config/database.js");
 
-async function buscarLivros(ano, autor_id, ordem) {
+async function buscarLivros(ano, autor_id, ordem, limit, offset) {
     let sql = "SELECT * FROM livros";
     const valores = [];
 
     if (ano !== undefined && autor_id !== undefined) {
         sql += " WHERE ano = ? AND autor_id = ?";
-        valores.push(ano);
-        valores.push(autor_id);
+        valores.push(ano, autor_id);
     } else if (ano !== undefined) {
         sql += " WHERE ano = ?";
         valores.push(ano);
@@ -18,10 +17,18 @@ async function buscarLivros(ano, autor_id, ordem) {
 
     if (ordem !== undefined) {
         if (ordem === "asc") {
-            sql += " ORDER BY ano ASC"
+            sql += " ORDER BY ano ASC";
         } else {
-            sql += " ORDER BY ano DESC"
+            sql += " ORDER BY ano DESC";
         }
+    }
+
+    if (limit !== undefined && offset !== undefined) {
+        sql += " LIMIT ? OFFSET ?";
+        valores.push(limit, offset);
+    } else if (limit !== undefined) {
+        sql += " LIMIT ?";
+        valores.push(limit);
     }
 
     const [resultado] = await connection.query(sql, valores);

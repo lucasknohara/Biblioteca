@@ -1,13 +1,14 @@
-const { query } = require("../config/database.js");
 const livroService = require("../services/livroService.js");
 
 async function buscarLivrosController(req, res) {
-    const { ano, autor_id, ordem } = req.query;
+    const { ano, autor_id, ordem, limit, offset } = req.query;
 
     const anoNumero = ano !== undefined ? Number(ano) : undefined;
-    const autorIdNumero = autor_id !== undefined ? Number(autor_id): undefined;
+    const autorIdNumero = autor_id !== undefined ? Number(autor_id) : undefined;
+    const limitNumero = limit !== undefined ? Number(limit) : undefined;
+    const offsetNumero = offset !== undefined ? Number(offset) : undefined;
 
-    const resultado = await livroService.buscaLivrosService(anoNumero, autorIdNumero, ordem);
+    const resultado = await livroService.buscaLivrosService(anoNumero, autorIdNumero, ordem, limitNumero, offsetNumero);
 
     res.status(200).json(resultado);
 };

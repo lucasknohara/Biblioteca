@@ -2,12 +2,12 @@ const livroModel = require("../models/livroModel.js");
 const autorModel = require("../models/autorModel.js");
 const AppError = require("../errors/AppError.js");
 
-async function buscaLivrosService(ano, autor_id, ordem) {
+async function buscaLivrosService(ano, autor_id, ordem, limit, offset) {
     if (ano !== undefined && !Number.isInteger(ano)) {
         throw new AppError("Ano inválido!", 400);
     }
 
-    if (autor_id !== undefined && (autor_id <= 0|| !Number.isInteger(autor_id))) {
+    if (autor_id !== undefined && (autor_id <= 0 || !Number.isInteger(autor_id))) {
         throw new AppError("Autor inválido!", 400);
     }
 
@@ -15,7 +15,19 @@ async function buscaLivrosService(ano, autor_id, ordem) {
         throw new AppError("Ordem inválida", 400);
     }
 
-    const resultado = await livroModel.buscarLivros(ano, autor_id, ordem);
+    if (limit !== undefined && (limit <= 0 || !Number.isInteger(limit))) {
+        throw new AppError("Limit inválido!", 400);
+    }
+
+    if (offset !== undefined && limit === undefined) {
+        throw new AppError("Offset requer limit!", 400);
+    }
+
+    if (offset !== undefined && (offset < 0 || !Number.isInteger(offset))) {
+        throw new AppError("Offset inválido!", 400);
+    }
+
+    const resultado = await livroModel.buscarLivros(ano, autor_id, ordem, limit, offset);
 
     return resultado;
 };
