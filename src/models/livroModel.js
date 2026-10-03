@@ -17,10 +17,12 @@ async function buscarLivros(ano, autor_id, ordem, limit, offset) {
 
     if (ordem !== undefined) {
         if (ordem === "asc") {
-            sql += " ORDER BY ano ASC";
-        } else {
-            sql += " ORDER BY ano DESC";
+            sql += " ORDER BY ano ASC, id ASC";
+        } else if (ordem === "desc") {
+            sql += " ORDER BY ano DESC, id ASC";
         }
+    } else {
+        sql += " ORDER BY id ASC";
     }
 
     if (limit !== undefined && offset !== undefined) {
