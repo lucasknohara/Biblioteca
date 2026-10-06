@@ -70,6 +70,26 @@ async function emprestarLivro(id) {
     return resultado;
 };
 
+async function contaLivros(ano, autor_id) {
+    let sql = "SELECT COUNT(*) AS total FROM livros";
+    const valores = [];
+
+    if (ano !== undefined && autor_id !== undefined) {
+        sql += " WHERE ano = ? AND autor_id = ?";
+        valores.push(ano, autor_id);
+    } else if (ano !== undefined) {
+        sql += " WHERE ano = ?";
+        valores.push(ano);
+    } else if (autor_id !== undefined) {
+        sql += " WHERE autor_id = ?";
+        valores.push(autor_id);
+    }
+
+    const [resultado] = await connection.query(sql, valores);
+
+    return resultado[0].total;
+};
+
 module.exports = {
     buscarLivros,
     buscarLivroPorId,
@@ -77,4 +97,5 @@ module.exports = {
     atualizarLivro,
     deletarLivro,
     emprestarLivro,
+    contaLivros,
 };

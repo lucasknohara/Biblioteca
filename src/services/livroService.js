@@ -28,8 +28,16 @@ async function buscaLivrosService(ano, autor_id, ordem, limit, offset) {
     }
 
     const resultado = await livroModel.buscarLivros(ano, autor_id, ordem, limit, offset);
+    const total = await livroModel.contaLivros(ano, autor_id);
 
-    return resultado;
+    return {
+        data: resultado,
+        pagination: {
+            limit,
+            offset,
+            total
+        }
+    };
 };
 
 async function buscaLivrosPorIdService(id) {
@@ -141,6 +149,12 @@ async function emprestarLivroService(id) {
     return resultado;
 };
 
+async function contarLivrosService(ano, autor_id) {
+    const resultado = await livroModel.contaLivros(ano, autor_id);
+
+    return resultado;
+};
+
 module.exports = {
     emprestarLivroService,
     buscaLivrosService,
@@ -148,4 +162,5 @@ module.exports = {
     criarlivroService,
     atualizarLivroService,
     deletarLivroService,
+    contarLivrosService,
 };
