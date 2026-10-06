@@ -1,19 +1,32 @@
 const connection = require("../config/database.js");
 
-async function buscarLivros(ano, autor_id, ordem, limit, offset) {
-    let sql = "SELECT * FROM livros";
+function montarFiltros(ano, autor_id) {
+    let where = "";
     const valores = [];
 
     if (ano !== undefined && autor_id !== undefined) {
-        sql += " WHERE ano = ? AND autor_id = ?";
+        where = " WHERE ano = ? AND autor_id = ?";
         valores.push(ano, autor_id);
     } else if (ano !== undefined) {
-        sql += " WHERE ano = ?";
+        where = " WHERE ano = ?";
         valores.push(ano);
     } else if (autor_id !== undefined) {
-        sql += " WHERE autor_id = ?";
+        where = " WHERE autor_id = ?";
         valores.push(autor_id);
     }
+
+    return {
+        where,
+        valores
+    };
+};
+
+async function buscarLivros(ano, autor_id, ordem, limit, offset) {
+    let sql = "SELECT * FROM livros";
+    const filtros = montarFiltros(ano, autor_id);
+    const valores = filtros.valores;
+
+    sql += filtros.where;
 
     if (ordem !== undefined) {
         if (ordem === "asc") {
@@ -72,18 +85,10 @@ async function emprestarLivro(id) {
 
 async function contaLivros(ano, autor_id) {
     let sql = "SELECT COUNT(*) AS total FROM livros";
-    const valores = [];
+    const filtros = montarFiltros(ano, autor_id);
+    const valores = filtros.valores;
 
-    if (ano !== undefined && autor_id !== undefined) {
-        sql += " WHERE ano = ? AND autor_id = ?";
-        valores.push(ano, autor_id);
-    } else if (ano !== undefined) {
-        sql += " WHERE ano = ?";
-        valores.push(ano);
-    } else if (autor_id !== undefined) {
-        sql += " WHERE autor_id = ?";
-        valores.push(autor_id);
-    }
+    sql += filtros.where;
 
     const [resultado] = await connection.query(sql, valores);
 
