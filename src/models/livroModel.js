@@ -77,8 +77,8 @@ async function deletarLivro(id) {
     return resultado;
 };
 
-async function emprestarLivro(id) {
-    const [resultado] = await connection.query("UPDATE livros SET disponivel = false WHERE id = ?", [id]);
+async function emprestarLivro(id, conn) {
+    const [resultado] = await conn.query("UPDATE livros SET disponivel = false WHERE id = ?", [id]);
 
     return resultado;
 };
@@ -95,6 +95,21 @@ async function contaLivros(ano, autor_id) {
     return resultado[0].total;
 };
 
+async function registrarEmprestimo(livroId, conn) {
+    const [resultado] = await conn.query(
+        "INSERT INTO emprestimos (livro_id) VALUES (?)",
+        [livroId]
+    );
+
+    return resultado;
+};
+
+async function buscarLivroParaEmprestimo(id, conn) {
+    let [resultado] = await conn.query("SELECT id, disponivel FROM livros WHERE id = ? FOR UPDATE", [id]);
+
+    return resultado;
+};
+
 module.exports = {
     buscarLivros,
     buscarLivroPorId,
@@ -103,4 +118,6 @@ module.exports = {
     deletarLivro,
     emprestarLivro,
     contaLivros,
+    buscarLivroParaEmprestimo,
+    registrarEmprestimo,
 };

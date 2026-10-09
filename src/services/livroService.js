@@ -1,6 +1,7 @@
 const livroModel = require("../models/livroModel.js");
 const autorModel = require("../models/autorModel.js");
 const AppError = require("../errors/AppError.js");
+const connection = require("../config/database.js");
 
 async function buscaLivrosService(ano, autor_id, ordem, limit, offset) {
     if (ano !== undefined && !Number.isInteger(ano)) {
@@ -132,21 +133,46 @@ async function deletarLivroService(id) {
 };
 
 async function emprestarLivroService(id) {
-    let busca = await livroModel.buscarLivroPorId(id);
+    let conn = await connection.getConnection();
+    let transacaoIniciada = false;
 
-    if (busca.length === 0) {
-        throw new AppError("Livro não encontrado!", 404);
+    try {
+        await conn.beginTransaction();
+        transacaoIniciada = true;
+
+        let busca = await livroModel.buscarLivroParaEmprestimo(id, conn);
+        
+        if (busca.length === 0) {
+            throw new AppError("Livro não encontrado!", 404);
+        }
+
+        const disponivel = busca[0].disponivel;
+
+        if (disponivel === false) {
+            throw new AppError("Livro indisponivel!", 409)
+        }
+
+        await livroModel.registrarEmprestimo(id, conn);
+
+        const resultado = await livroModel.emprestarLivro(id, conn);
+
+        if (resultado.affectedRows !== 1) {
+            throw new AppError("Não foi possível atualizar o livro!", 500);
+        }
+
+        await conn.commit();
+        transacaoIniciada = false;
+
+        return resultado;
+    } catch (erro) {
+        if (transacaoIniciada) {
+            await conn.rollback();
+        }
+
+        throw erro;
+    } finally {
+        conn.release();
     }
-
-    const disponivel = busca[0].disponivel;
-
-    if (disponivel === false) {
-        throw new AppError("Livro indisponivel!", 409)
-    }
-
-    const resultado = await livroModel.emprestarLivro(id);
-
-    return resultado;
 };
 
 async function contarLivrosService(ano, autor_id) {
