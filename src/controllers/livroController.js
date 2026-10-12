@@ -56,6 +56,12 @@ async function devolverLivroController(req, res) {
     return res.status(200).json(resultado);
 };
 
+async function buscarHistoricoEmprestimosController(req, res) {
+    const resultado = await livroService.buscarHistoricoEmprestimosService();
+
+    res.status(200).json(resultado);
+};
+
 module.exports = {
     buscarLivrosController,
     buscarLivroPorIdController,
@@ -64,4 +70,5 @@ module.exports = {
     deletarLivroController,
     emprestarLivroController,
     devolverLivroController,
+    buscarHistoricoEmprestimosController,
 };

@@ -233,6 +233,12 @@ async function devolverLivroService(id) {
     }
 };
 
+async function buscarHistoricoEmprestimosService() {
+    const resultado = await livroModel.buscarHistoricoEmprestimos();
+
+    return resultado;
+};
+
 module.exports = {
     emprestarLivroService,
     buscaLivrosService,
@@ -242,4 +248,5 @@ module.exports = {
     deletarLivroService,
     contarLivrosService,
     devolverLivroService,
+    buscarHistoricoEmprestimosService,
 };

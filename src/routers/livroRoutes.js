@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { buscarLivrosController, buscarLivroPorIdController, criarLivroController, atualizarLivroController, deletarLivroController, emprestarLivroController, devolverLivroController } = require("../controllers/livroController");
+const { buscarLivrosController, buscarLivroPorIdController, criarLivroController, atualizarLivroController, deletarLivroController, emprestarLivroController, devolverLivroController, buscarHistoricoEmprestimosController } = require("../controllers/livroController");
 const validarId = require("../middleware/validarId.js");
 
+router.get("/livros/historico-emprestimos", buscarHistoricoEmprestimosController);
 router.get("/livros", buscarLivrosController);
 router.get("/livros/:id", validarId, buscarLivroPorIdController);
 router.post("/livros", criarLivroController);
