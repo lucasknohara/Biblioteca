@@ -49,6 +49,13 @@ async function emprestarLivroController(req, res) {
     res.status(200).json(resultado);
 };
 
+async function devolverLivroController(req, res) {
+    const id = req.idValidado;
+    const resultado = await livroService.devolverLivroService(id);
+
+    return res.status(200).json(resultado);
+};
+
 module.exports = {
     buscarLivrosController,
     buscarLivroPorIdController,
@@ -56,4 +63,5 @@ module.exports = {
     atualizarLivroController,
     deletarLivroController,
     emprestarLivroController,
+    devolverLivroController,
 };

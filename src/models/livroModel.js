@@ -105,7 +105,44 @@ async function registrarEmprestimo(livroId, conn) {
 };
 
 async function buscarLivroParaEmprestimo(id, conn) {
-    let [resultado] = await conn.query("SELECT id, disponivel FROM livros WHERE id = ? FOR UPDATE", [id]);
+    const [resultado] = await conn.query("SELECT id, disponivel FROM livros WHERE id = ? FOR UPDATE", [id]);
+
+    return resultado;
+};
+
+async function buscarEmprestimoAtivo(livroId, conn) {
+    const [resultado] = await conn.query("SELECT id FROM emprestimos WHERE livro_id = ? AND data_devolucao IS null LIMIT 1 FOR UPDATE", [livroId]);
+
+    return resultado;
+};
+
+async function devolverEmprestimo(emprestimoId, conn) {
+    const [resultado] = await conn.query("UPDATE emprestimos SET data_devolucao = CURRENT_TIMESTAMP WHERE id = ? AND data_devolucao IS NULL", [emprestimoId]);
+
+    return resultado;
+};
+
+async function disponibilizarLivro(livroId, conn) {
+    const [resultado] = await conn.query("UPDATE livros SET disponivel = true WHERE id = ?", [livroId]);
+
+    return resultado;
+};
+
+async function buscarHistoricoEmprestimos() {
+    const [resultado] = await connection.query(`
+        SELECT
+            livros.id AS livro_id,
+            livros.titulo,
+            emprestimos.id AS emprestimo_id,
+            emprestimos.data_emprestimo,
+            emprestimos.data_devolucao
+        FROM livros
+        JOIN emprestimos
+            ON livros.id = emprestimos.livro_id
+        ORDER BY
+            emprestimos.data_emprestimo DESC,
+            emprestimos.id DESC
+    `);
 
     return resultado;
 };
@@ -120,4 +157,8 @@ module.exports = {
     contaLivros,
     buscarLivroParaEmprestimo,
     registrarEmprestimo,
+    buscarEmprestimoAtivo,
+    devolverEmprestimo,
+    disponibilizarLivro,
+    buscarHistoricoEmprestimos,
 };

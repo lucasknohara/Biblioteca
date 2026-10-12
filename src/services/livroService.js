@@ -181,6 +181,58 @@ async function contarLivrosService(ano, autor_id) {
     return resultado;
 };
 
+
+async function devolverLivroService(id) {
+    const conn = await connection.getConnection();
+    let transacaoIniciada = false;
+
+    try {
+        await conn.beginTransaction();
+        transacaoIniciada = true;    
+
+        const disponivel = await livroModel.buscarLivroParaEmprestimo(id, conn);
+
+        if(disponivel.length === 0) {
+            throw new AppError("Livro não encontrado!", 404);
+        }
+
+        if(disponivel[0].disponivel) {
+            throw new AppError("Livro não emprestado!", 409);
+        }
+
+        const busca = await livroModel.buscarEmprestimoAtivo(id, conn);
+
+        if (busca.length === 0) {
+            throw new AppError("Não existe livro ativo para devolver!", 409);
+        }
+
+        const devolucao = await livroModel.devolverEmprestimo(busca[0].id, conn);
+
+        if(devolucao.affectedRows !== 1) {
+            throw new AppError("Não foi possivel atualizar livro!", 500);
+        }
+
+        const disponibilizar = await livroModel.disponibilizarLivro(id, conn);
+
+        if(disponibilizar.affectedRows !== 1) {
+            throw new AppError("Não foi possivel disponibilizar livro!", 500);
+        }
+
+        await conn.commit();
+        transacaoIniciada = false;
+
+        return disponibilizar;
+    } catch (erro) {
+        if(transacaoIniciada) {
+            await conn.rollback();
+        }
+
+        throw erro;
+    } finally {
+        conn.release()
+    }
+};
+
 module.exports = {
     emprestarLivroService,
     buscaLivrosService,
@@ -189,4 +241,5 @@ module.exports = {
     atualizarLivroService,
     deletarLivroService,
     contarLivrosService,
+    devolverLivroService,
 };
