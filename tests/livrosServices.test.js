@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert= require("node:assert/strict");
 const livrosService = require("../src/services/livroService.js");
 const livroModel = require("../src/models/livroModel.js");
+const connection = require("../src/config/database.js");
 
 test("deve rejeitar um ano inválido!", async () => {
     await assert.rejects(livrosService.buscaLivrosService("2020", undefined, undefined, undefined, undefined), 
@@ -51,8 +52,38 @@ test("deve retornar livros e paginação com dados válidos", async (t) => {
 test("Deve rejeitar offset sem limit!", async () => {
     await assert.rejects(livrosService.buscaLivrosService(undefined, undefined, undefined, undefined, 2),
         {
-            message: "Offset requer o limit!",
+            message: "Offset requer limit!",
             status: 400
         }    
     );
+});
+
+test("deve rejeitar devolução de livro disponível", async (t) => {
+    const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn()
+    };
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: true }]
+    );
+
+    await assert.rejects(livrosService.devolverLivroService(1),
+        {
+            message: "Livro não emprestado!",
+            status: 409
+        }
+    )
+
+    assert.equal(connFake.rollback.mock.callCount(), 1);
+    assert.equal(connFake.release.mock.callCount(), 1);
 });
