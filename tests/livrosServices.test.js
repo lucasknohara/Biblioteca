@@ -3,6 +3,7 @@ const assert= require("node:assert/strict");
 const livrosService = require("../src/services/livroService.js");
 const livroModel = require("../src/models/livroModel.js");
 const connection = require("../src/config/database.js");
+const AppError = require("../src/errors/AppError.js");
 
 test("deve rejeitar um ano inválido!", async () => {
     await assert.rejects(livrosService.buscaLivrosService("2020", undefined, undefined, undefined, undefined), 
@@ -84,6 +85,103 @@ test("deve rejeitar devolução de livro disponível", async (t) => {
         }
     )
 
+    assert.equal(connFake.rollback.mock.callCount(), 1);
+    assert.equal(connFake.release.mock.callCount(), 1);
+});
+
+test("deve devolver um livro com sucesso", async (t) => {
+    const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn(),
+        commit: t.mock.fn(async () => {})
+    };
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: false }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarEmprestimoAtivo",
+        async () => [{ id: 7 }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "devolverEmprestimo",
+        async () => ({ affectedRows: 1 })
+    );
+
+    t.mock.method(
+        livroModel,
+        "disponibilizarLivro",
+        async () => ({ affectedRows: 1 })
+    );
+
+    const resultado = await livrosService.devolverLivroService(1);
+
+    assert.deepEqual(resultado, { affectedRows: 1 });
+    
+    assert.equal(connFake.commit.mock.callCount(), 1);
+    assert.equal(connFake.rollback.mock.callCount(), 0);
+    assert.equal(connFake.release.mock.callCount(), 1);
+});
+
+test("deve desfazer a devolução se falhar ao disponibilizar o livro", async (t) => {
+        const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn(),
+        commit: t.mock.fn(async () => {})
+    };
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: false }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarEmprestimoAtivo",
+        async () => [{ id: 7 }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "devolverEmprestimo",
+        async () => ({ affectedRows: 1 })
+    );
+
+    t.mock.method(
+        livroModel,
+        "disponibilizarLivro",
+        async () => { throw new AppError("Falha ao atualizar livro!", 500) }
+    );
+
+        await assert.rejects(livrosService.devolverLivroService(1),
+        {
+            message: "Falha ao atualizar livro!",
+            status: 500
+        }
+    )
+    
+    assert.equal(connFake.commit.mock.callCount(), 0);
     assert.equal(connFake.rollback.mock.callCount(), 1);
     assert.equal(connFake.release.mock.callCount(), 1);
 });
