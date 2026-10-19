@@ -137,7 +137,7 @@ test("deve devolver um livro com sucesso", async (t) => {
 });
 
 test("deve desfazer a devolução se falhar ao disponibilizar o livro", async (t) => {
-        const connFake = {
+    const connFake = {
         beginTransaction: t.mock.fn(async () => {}),
         rollback: t.mock.fn(async () => {}),
         release: t.mock.fn(),
@@ -181,6 +181,109 @@ test("deve desfazer a devolução se falhar ao disponibilizar o livro", async (t
         }
     )
     
+    assert.equal(connFake.commit.mock.callCount(), 0);
+    assert.equal(connFake.rollback.mock.callCount(), 1);
+    assert.equal(connFake.release.mock.callCount(), 1);
+});
+
+test("deve desfazer a devolução quando nenhum empréstimo for atualizado", async (t) => {
+    const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn(),
+        commit: t.mock.fn(async () => {})
+    };
+
+    const disponibilizarMock = t.mock.method(
+        livroModel,
+        "disponibilizarLivro",
+        async () => ({ affectedRows: 1 })
+    );
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: false }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarEmprestimoAtivo",
+        async () => [{ id: 7 }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "devolverEmprestimo",
+        async () => ({ affectedRows: 0 })
+    );
+
+    await assert.rejects(livrosService.devolverLivroService(1),
+        {
+            message: "Não foi possivel atualizar livro!",
+            status: 500
+        }
+    )
+
+    assert.equal(disponibilizarMock.mock.callCount(), 0);
+    assert.equal(connFake.commit.mock.callCount(), 0);
+    assert.equal(connFake.rollback.mock.callCount(), 1);
+    assert.equal(connFake.release.mock.callCount(), 1);
+});
+
+test("deve rejeitar devolução quando não existe empréstimo ativo", async (t) => {
+    const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn(),
+        commit: t.mock.fn(async () => {})
+    };
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: false }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarEmprestimoAtivo",
+        async () => []
+    );
+
+    const disponibilizarMock = t.mock.method(
+        livroModel,
+        "devolverEmprestimo",
+        async () => ({ affectedRows: 1 })
+    );
+
+    const disponibilizarLivroMock = t.mock.method(
+        livroModel,
+        "disponibilizarLivro",
+        async () => ({ affectedRows: 1 })
+    );
+
+    await assert.rejects(livrosService.devolverLivroService(1),
+        {
+            message: "Não existe livro ativo para devolver!",
+            status: 409
+        }
+    )
+
+    assert.equal(disponibilizarMock.mock.callCount(), 0);
+    assert.equal(disponibilizarLivroMock.mock.callCount(), 0);
     assert.equal(connFake.commit.mock.callCount(), 0);
     assert.equal(connFake.rollback.mock.callCount(), 1);
     assert.equal(connFake.release.mock.callCount(), 1);
