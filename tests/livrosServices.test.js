@@ -288,3 +288,47 @@ test("deve rejeitar devolução quando não existe empréstimo ativo", async (t)
     assert.equal(connFake.rollback.mock.callCount(), 1);
     assert.equal(connFake.release.mock.callCount(), 1);
 });
+
+test("deve rejeitar empréstimo quando o livro está indisponível", async (t) => {
+        const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn(),
+        commit: t.mock.fn(async () => {})
+    };
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: 0 }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "registrarEmprestimo",
+        async () => []
+    );
+
+    t.mock.method(
+        livroModel,
+        "emprestarLivro",
+        async () => ({ affectedRows: 1 })
+    );
+
+    await assert.rejects(livrosService.emprestarLivroService(1),
+        {
+            message: "Livro indisponivel!",
+            status: 409
+        }
+    );
+
+    assert.equal(connFake.commit.mock.callCount(), 0);
+    assert.equal(connFake.rollback.mock.callCount(), 1);
+    assert.equal(connFake.release.mock.callCount(), 1);
+});

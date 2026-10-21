@@ -148,7 +148,7 @@ async function emprestarLivroService(id) {
 
         const disponivel = busca[0].disponivel;
 
-        if (disponivel === false) {
+        if (disponivel === false || disponivel === 0 || disponivel === "0") {
             throw new AppError("Livro indisponivel!", 409)
         }
 
