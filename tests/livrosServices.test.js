@@ -290,7 +290,7 @@ test("deve rejeitar devolução quando não existe empréstimo ativo", async (t)
 });
 
 test("deve rejeitar empréstimo quando o livro está indisponível", async (t) => {
-        const connFake = {
+    const connFake = {
         beginTransaction: t.mock.fn(async () => {}),
         rollback: t.mock.fn(async () => {}),
         release: t.mock.fn(),
@@ -330,5 +330,45 @@ test("deve rejeitar empréstimo quando o livro está indisponível", async (t) =
 
     assert.equal(connFake.commit.mock.callCount(), 0);
     assert.equal(connFake.rollback.mock.callCount(), 1);
+    assert.equal(connFake.release.mock.callCount(), 1);
+});
+
+test("deve emprestar um livro disponível", async (t) => {
+    const connFake = {
+        beginTransaction: t.mock.fn(async () => {}),
+        rollback: t.mock.fn(async () => {}),
+        release: t.mock.fn(),
+        commit: t.mock.fn(async () => {})
+    };
+
+    t.mock.method(
+        connection,
+        "getConnection",
+        async () => connFake
+    );
+
+    t.mock.method(
+        livroModel,
+        "buscarLivroParaEmprestimo",
+        async () => [{ id: 1, disponivel: true }]
+    );
+
+    t.mock.method(
+        livroModel,
+        "registrarEmprestimo",
+        async () => []
+    );
+
+    t.mock.method(
+        livroModel,
+        "emprestarLivro",
+        async () => ({ affectedRows: 1 })
+    );
+
+    const resultado = await livrosService.emprestarLivroService(1);
+
+    assert.deepEqual(resultado, { affectedRows: 1 });
+    assert.equal(connFake.commit.mock.callCount(), 1);
+    assert.equal(connFake.rollback.mock.callCount(), 0);
     assert.equal(connFake.release.mock.callCount(), 1);
 });
