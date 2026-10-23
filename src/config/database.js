@@ -8,7 +8,7 @@ const pool = mysql2.createPool({
     database: process.env.DB_NAME || "biblioteca",
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0   
 });
 
 module.exports = pool;
