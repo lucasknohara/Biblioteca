@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const usuarioModel = require("../models/usuarioModel.js");
 const AppError = require("../errors/AppError.js");
+const jwt = require("jsonwebtoken");
 
 async function criarUsuarioService(nome, email, senha) {
     if (typeof nome !== "string" || nome.trim() === "") {
@@ -45,10 +46,22 @@ async function loginUsuarioService(email, senha) {
         throw new AppError("Email ou senha inválidos!", 401);
     }
 
+    const token = jwt.sign(
+        {
+            id: buscarUsuario.id,
+            perfil: buscarUsuario.perfil
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "1h"
+        }
+    );
+
     return {
         id: buscarUsuario.id,
         nome: buscarUsuario.nome,
-        email: buscarUsuario.email
+        email: buscarUsuario.email,
+        token: token
     }
 };
 
