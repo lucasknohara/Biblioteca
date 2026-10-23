@@ -32,6 +32,27 @@ async function criarUsuarioService(nome, email, senha) {
     };
 };
 
+async function loginUsuarioService(email, senha) {
+    const buscarUsuario = await usuarioModel.buscarUsuarioPorEmail(email);
+    
+    if (buscarUsuario === null) {
+        throw new AppError("Email ou senha inválidos!", 401);
+    }
+
+    const senhaCorreta = await bcrypt.compare(senha, buscarUsuario.senha_hash);
+    
+    if (!senhaCorreta) {
+        throw new AppError("Email ou senha inválidos!", 401);
+    }
+
+    return {
+        id: buscarUsuario.id,
+        nome: buscarUsuario.nome,
+        email: buscarUsuario.email
+    }
+};
+
 module.exports = {
     criarUsuarioService,
+    loginUsuarioService,
 };

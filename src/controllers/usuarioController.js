@@ -8,6 +8,15 @@ async function criarUsuarioController(req, res) {
     res.status(201).json(resultado);
 };
 
+async function loginUsuarioController(req, res) {
+    const { email, senha } = req.body;
+
+    const resultado = await usuarioService.loginUsuarioService(email, senha);
+
+    res.status(200).json(resultado);
+};
+
 module.exports = {
     criarUsuarioController,
+    loginUsuarioController,
 };
