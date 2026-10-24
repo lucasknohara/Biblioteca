@@ -16,7 +16,15 @@ async function loginUsuarioController(req, res) {
     res.status(200).json(resultado);
 };
 
+function meuUsuarioController(req, res) {
+    res.status(200).json({
+        id: req.usuario.id,
+        perfil: req.usuario.perfil
+    });
+}
+
 module.exports = {
     criarUsuarioController,
     loginUsuarioController,
+    meuUsuarioController,
 };
